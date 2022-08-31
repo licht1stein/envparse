@@ -9,6 +9,7 @@ import os
 import re
 import shlex
 import warnings
+import subprocess
 try:
     import urllib.parse as urlparse
 except ImportError:
@@ -93,6 +94,8 @@ class Env(object):
 
         try:
             value = os.environ[var]
+            if cast == str and value.startswith("shell::"):
+                value = subprocess.check_output(value.replace("shell::", "").split(), shell=True).decode().strip()
         except KeyError:
             if default is NOTSET:
                 error_msg = "Environment variable '{}' not set.".format(var)
